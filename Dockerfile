@@ -1,11 +1,17 @@
-# Use the official n8n image as the base
-FROM docker.n8n.io/n8nio/n8n:latest
+# Use the official n8n image as the base (v2 is hardened/distroless)
+FROM n8nio/n8n:latest
 
 # Switch to root to install system dependencies
 USER root
 
-# Install Python, FFmpeg, and yt-dlp
-# Alpine-based images use apk
+# 1. Bootstrap apk back into the hardened image
+# We download a static version of apk to install the package manager itself
+RUN wget https://gitlab.alpinelinux.org/api/v4/projects/5/packages/generic/v2.14.4/x86_64/apk.static && \
+    chmod +x apk.static && \
+    ./apk.static -X http://dl-cdn.alpinelinux.org/alpine/v3.21/main -U --allow-untrusted --initdb add apk-tools && \
+    rm apk.static
+
+# 2. Install Python, FFmpeg, and yt-dlp using the restored apk
 RUN apk add --no-cache \
     python3 \
     py3-pip \
@@ -13,10 +19,7 @@ RUN apk add --no-cache \
     yt-dlp \
     curl
 
-# Optional: Ensure yt-dlp is the latest version via pip if the apk version is old
-# RUN pip3 install -U yt-dlp --break-system-packages
-
-# Create a directory for downloads and set permissions
+# 3. Create a directory for downloads and set permissions
 RUN mkdir -p /home/node/downloads && \
     chown -R node:node /home/node/downloads
 
@@ -30,5 +33,3 @@ ENV NODE_ENV=production
 
 # Expose the port n8n will run on
 EXPOSE 10000
-
-# The base image already has an ENTRYPOINT and CMD to start n8n

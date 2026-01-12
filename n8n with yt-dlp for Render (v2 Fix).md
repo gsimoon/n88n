@@ -1,9 +1,12 @@
-# n8n with yt-dlp for Render
+# n8n with yt-dlp for Render (v2 Fix)
 
 This repository contains the configuration to deploy n8n on Render with `yt-dlp` and `ffmpeg` pre-installed.
 
+## The v2 Fix
+The official n8n v2 image is "hardened" and lacks a package manager. This Dockerfile includes a **bootstrapping step** that restores the `apk` package manager, allowing us to install the necessary tools (`yt-dlp`, `ffmpeg`, `python3`) while still using the official latest n8n image.
+
 ## Features
-- **n8n**: Latest version of the workflow automation tool.
+- **n8n**: Latest version (v2.x) of the workflow automation tool.
 - **yt-dlp**: Command-line media downloader.
 - **FFmpeg**: Essential for processing and merging media streams.
 - **Render Optimized**: Pre-configured for Render's environment.
@@ -30,4 +33,4 @@ In your n8n workflow, use the **Execute Command** node.
 ### Important Notes
 - **Persistent Disk**: The `render.yaml` includes a 1GB persistent disk mounted at `/home/node/.n8n` to save your workflows and credentials.
 - **Memory**: n8n can be memory-intensive. If you experience crashes, consider upgrading to a higher Render plan.
-- **yt-dlp Updates**: The Dockerfile installs the version available in the Alpine repository. To get the absolute latest, you can uncomment the `pip3 install` line in the `Dockerfile`.
+- **Storage**: Downloaded files should be saved to `/home/node/downloads` or the persistent mount to avoid losing them on restart.
