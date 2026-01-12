@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: n8n-ytdlp
+    env: docker
+    plan: starter # Recommend at least starter for n8n
+    region: oregon
+    envVars:
+      - key: N8N_PORT
+        value: 10000
+      - key: N8N_SECURE_COOKIE
+        value: "false" # Set to true if using custom domain with SSL
+      - key: NODE_ENV
+        value: production
+      - key: N8N_ENCRYPTION_KEY
+        generateValue: true
+    disk:
+      name: n8n-data
+      mountPath: /home/node/.n8n
+      sizeGB: 1
+    healthCheckPath: /healthz
